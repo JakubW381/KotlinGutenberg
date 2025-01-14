@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "302807637421",
+    "project_id": "gutenberglibrary-cde0e",
+    "storage_bucket": "gutenberglibrary-cde0e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:302807637421:android:48238082b8abb127f19524",
+        "android_client_info": {
+          "package_name": "com.example.gutenberglibrary"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "302807637421-rsi6bmgus5s8bn5ctn9cmceb8kenfrk5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvO3q-puYasFi6BYPlrcH_CnCvKT4C_J0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "302807637421-rsi6bmgus5s8bn5ctn9cmceb8kenfrk5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
