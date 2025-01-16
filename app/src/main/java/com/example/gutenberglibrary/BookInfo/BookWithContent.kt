@@ -1,7 +1,6 @@
 package com.example.gutenberglibrary.BookInfo
 
 
-
 data class BookWithContent(
     val id: Int? = null,
     val title: String? = null,

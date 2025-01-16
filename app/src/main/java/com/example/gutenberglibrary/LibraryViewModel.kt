@@ -14,10 +14,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.Language
 
 class LibraryViewModel : ViewModel() {
     private val fireStoreRepo = BookUserRepository()
+
     private val _currentUser = MutableStateFlow<FirebaseUser?>(Firebase.auth.currentUser)
     val currentUser: StateFlow<FirebaseUser?> = _currentUser
 
@@ -47,12 +47,43 @@ class LibraryViewModel : ViewModel() {
             getUserRepoBooks(user)
         }
     }
-
-
-
-
-
-
+//    private val _storageBooks = MutableStateFlow<List<BookEntity>>(emptyList())
+//    val storageBooks: StateFlow<List<BookEntity>> = _storageBooks
+//    private var bookDB: BookDB? = null
+//
+//    fun initRoomDatabase(db : BookDB) {
+//        bookDB = db
+//    }
+//
+//    private val bookDao
+//        get() = bookDB?.BookDAO()
+//
+//    fun getStorageBooks() {
+//        viewModelScope.launch {
+//            bookDao?.let {
+//                _storageBooks.value = it.getAllBooks()
+//            }
+//        }
+//    }
+//
+//
+//    fun insertStorageBook(book: BookEntity) {
+//        viewModelScope.launch {
+//            bookDao?.let {
+//                it.insertBook(book)
+//                getStorageBooks()
+//            }
+//        }
+//    }
+//
+//    fun deleteStorageBook(book: BookEntity) {
+//        viewModelScope.launch {
+//            bookDao?.let {
+//                it.deleteBook(book)
+//                getStorageBooks()
+//            }
+//        }
+//    }
 
     private val _currentLibraryBooks = MutableStateFlow<List<LibraryBookInfo>>(emptyList())
     val currentLibraryBooks: StateFlow<List<LibraryBookInfo>> = _currentLibraryBooks

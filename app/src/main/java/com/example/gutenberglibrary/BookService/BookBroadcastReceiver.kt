@@ -15,6 +15,7 @@ class BookBroadcastReceiver(private val onDataReceived: (BookWithContent) -> Uni
         if (intent?.action == "com.example.gutenberglibrary.BOOK_DOWNLOADED") {
             val contentUri = intent?.getStringExtra("CONTENT_URI")
             val bookId = intent?.getIntExtra("ID", -1) ?: -1
+            val downloadMethod = intent?.getStringExtra("DOWNLOAD") ?: "cloud"
 
             if (contentUri != null && context != null) {
                 val uri = Uri.parse(contentUri)
@@ -23,7 +24,8 @@ class BookBroadcastReceiver(private val onDataReceived: (BookWithContent) -> Uni
 
                 val bookWithContent = BookWithContent(
                     id = bookId,
-                    content = content
+                    content = content,
+                    author = downloadMethod,
                 )
                 Log.d("content received in receiver ----->", content)
                 deleteFile(uri)
