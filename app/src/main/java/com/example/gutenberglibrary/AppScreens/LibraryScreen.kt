@@ -1,13 +1,15 @@
 package com.example.gutenberglibrary.AppScreens
 
-
-
+import android.Manifest
 import android.app.Activity.RECEIVER_EXPORTED
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -58,6 +60,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.example.gutenberglibrary.BookInfo.BookWithContent
 import com.example.gutenberglibrary.BookInfo.LibraryBookInfo
 import com.example.gutenberglibrary.BookService.BookBroadcastReceiver
@@ -73,17 +78,14 @@ fun LibraryScreen(libMVVM: LibraryViewModel,context : Context) {
     val page by libMVVM.currentLibraryPage.collectAsState()
 
     val bookServiceIntent = Intent(context,BookService::class.java)
-//    val db = Room.databaseBuilder(
-//        context,BookDB::class.java, "book_db"
-//    ).build()
+
 
     val searchBar by libMVVM.searchBar.collectAsState("")
     val topicBar by libMVVM.topicBar.collectAsState("")
 
     var expanded by remember { mutableStateOf(false) }
-    var availableLanguages = listOf("pl", "en", "de", "fr", "ru")
+    val availableLanguages = listOf("pl", "en", "de", "fr", "ru")
     var selectedLanguages by remember { mutableStateOf(setOf<String>()) }
-
 
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -113,8 +115,12 @@ fun LibraryScreen(libMVVM: LibraryViewModel,context : Context) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.outline)
+
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                ) {
                     TextField(
                         value = searchBar,
                         onValueChange = { libMVVM.updateSearchBar(it) },
@@ -124,8 +130,8 @@ fun LibraryScreen(libMVVM: LibraryViewModel,context : Context) {
                             .padding(bottom = 8.dp),
                         colors = TextFieldDefaults.colors(
                             focusedTextColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.primary,
-                            focusedContainerColor = MaterialTheme.colorScheme.primary,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
+                            focusedContainerColor = MaterialTheme.colorScheme.tertiary,
                             unfocusedLabelColor =MaterialTheme.colorScheme.surface,
                             focusedLabelColor = MaterialTheme.colorScheme.surface,
                             unfocusedIndicatorColor = MaterialTheme.colorScheme.surface,
@@ -142,8 +148,8 @@ fun LibraryScreen(libMVVM: LibraryViewModel,context : Context) {
                             .padding(bottom = 8.dp),
                         colors = TextFieldDefaults.colors(
                             focusedTextColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.primary,
-                            focusedContainerColor = MaterialTheme.colorScheme.primary,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
+                            focusedContainerColor = MaterialTheme.colorScheme.tertiary,
                             unfocusedLabelColor =MaterialTheme.colorScheme.surface,
                             focusedLabelColor = MaterialTheme.colorScheme.surface,
                             unfocusedIndicatorColor = MaterialTheme.colorScheme.surface,
@@ -170,7 +176,7 @@ fun LibraryScreen(libMVVM: LibraryViewModel,context : Context) {
                                         }
                                     }
                                 )
-                                Text("$language")
+                                Text(language)
                             }
                         }
                     }
@@ -181,13 +187,12 @@ fun LibraryScreen(libMVVM: LibraryViewModel,context : Context) {
                     shape = RectangleShape,
                     onClick = {
 
-                        var resSearch = searchBar.replace(" ", "%20")
-                        var resTopic = topicBar.replace(" ", "%20")
-                        var resLanguages : String
-                        if (selectedLanguages.isNotEmpty()){
-                            resLanguages = selectedLanguages.joinToString(",")
+                        val resSearch = searchBar.replace(" ", "%20")
+                        val resTopic = topicBar.replace(" ", "%20")
+                        val resLanguages : String = if (selectedLanguages.isNotEmpty()){
+                            selectedLanguages.joinToString(",")
                         }else{
-                            resLanguages = availableLanguages.joinToString(",")
+                            availableLanguages.joinToString(",")
                         }
 
                         libMVVM.downloadBooksFromApi(
@@ -227,19 +232,18 @@ fun LibraryScreen(libMVVM: LibraryViewModel,context : Context) {
         ) {
             IconButton(
                 onClick = {
-                    var resSearch = searchBar.replace(" ", "%20")
-                    var resTopic = topicBar.replace(" ", "%20")
-                    var resLanguages : String
-                    if (selectedLanguages.isNotEmpty()){
-                        resLanguages = selectedLanguages.joinToString(",")
+                    val resSearch = searchBar.replace(" ", "%20")
+                    val resTopic = topicBar.replace(" ", "%20")
+                    val resLanguages : String = if (selectedLanguages.isNotEmpty()){
+                        selectedLanguages.joinToString(",")
                     }else{
-                        resLanguages = availableLanguages.joinToString(",")
+                        availableLanguages.joinToString(",")
                     }
-                    val page = libMVVM.currentLibraryPage.value - 1;
+                    val rpage = libMVVM.currentLibraryPage.value - 1
 
                         libMVVM.updateCurrentPage(page)
                         libMVVM.downloadBooksFromApi(
-                        page = page,
+                        page = rpage,
                         search = resSearch,
                         language = resLanguages,
                         topic = resTopic
@@ -256,18 +260,17 @@ fun LibraryScreen(libMVVM: LibraryViewModel,context : Context) {
             Spacer(modifier = Modifier.width(16.dp))
             IconButton(
                 onClick = {
-                    var resSearch = searchBar.replace(" ", "%20")
-                    var resTopic = topicBar.replace(" ", "%20")
-                    var resLanguages : String
-                    if (selectedLanguages.isNotEmpty()){
-                        resLanguages = selectedLanguages.joinToString(",")
+                    val resSearch = searchBar.replace(" ", "%20")
+                    val resTopic = topicBar.replace(" ", "%20")
+                    val resLanguages : String = if (selectedLanguages.isNotEmpty()){
+                        selectedLanguages.joinToString(",")
                     }else{
-                        resLanguages = availableLanguages.joinToString(",")
+                        availableLanguages.joinToString(",")
                     }
-                    val page = libMVVM.currentLibraryPage.value + 1
+                    val rpage = libMVVM.currentLibraryPage.value + 1
                     libMVVM.updateCurrentPage(page)
                     libMVVM.downloadBooksFromApi(
-                        page = page,
+                        page = rpage,
                         search = resSearch,
                         language = resLanguages,
                         topic = resTopic
@@ -284,15 +287,34 @@ fun LibraryScreen(libMVVM: LibraryViewModel,context : Context) {
     }
 }
 
+private fun checkNotificationPermission(context: Context): Boolean{
+    return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+    } else{
+        true
+    }
+}
+
+
 
 @Composable
 fun BookRecord(book: LibraryBookInfo,libMVVM: LibraryViewModel, context: Context,bookServiceIntent: Intent) {
     val currentUser by libMVVM.currentUser.collectAsState()
 
+    var permission by remember { mutableStateOf(checkNotificationPermission(context)) }
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        permission  = isGranted
+    }
+
+
     DisposableEffect(Unit) {
         val receiver = BookBroadcastReceiver { received ->
             if (book.id == received.id){
-                val method = received.author
                 val bookWithContent = BookWithContent(
                     id = book.id,
                     title = book.title,
@@ -301,23 +323,25 @@ fun BookRecord(book: LibraryBookInfo,libMVVM: LibraryViewModel, context: Context
                     languages = book.languages,
                     content = received.content
                 )
-
-                if(method == "cloud"){
+                try {
                     libMVVM.addUserBookToRepo(currentUser!!, bookWithContent)
-                }else if(method == "storage"){
-//                    val bookEntity = BookEntity(
-//                        id = book.id,
-//                        title = book.title,
-//                        author = book.author,
-//                        bookshelves = book.bookshelves,
-//                        languages = book.languages,
-//                        content = received.content,
-//                        scrollState = 0
-//                    )
-//                    libMVVM.insertStorageBook(bookEntity)
-                }else{
+                }catch (e : Exception){
                     Log.d("download method ---->" , "wrong method")
+                }finally {
+                    if (permission){
+                        val builder = NotificationCompat.Builder(context,"default_channel")
+                            .setSmallIcon(R.drawable.lib)
+                            .setContentTitle("New book in collection")
+                            .setContentText("Book \"${book.title}\" successfully saved in your repository.")
+                            .setPriority(NotificationCompat.PRIORITY_HIGH)
+                            .setStyle(NotificationCompat.BigTextStyle())
+                            .setColor(0xFFBA8265.toInt())
+                        with(NotificationManagerCompat.from(context)){
+                            notify(1,builder.build())
+                        }
+                    }
                 }
+
             }
         }
         val intentFilter = IntentFilter("com.example.gutenberglibrary.BOOK_DOWNLOADED")
@@ -339,7 +363,6 @@ fun BookRecord(book: LibraryBookInfo,libMVVM: LibraryViewModel, context: Context
             .border(3.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
             .padding(16.dp)
-            //.clickable { Log.d("click ------>","book info: ${book.id} ,${book.author} ,${book.title} ,${book.bookshelves.firstOrNull() ?: ""} , ") }
     ) {
         Text(
             text = book.title,
@@ -389,6 +412,7 @@ fun BookRecord(book: LibraryBookInfo,libMVVM: LibraryViewModel, context: Context
         ) {
             Button(
                 onClick = {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                     bookServiceIntent.putExtra("ID", book.id)
                     bookServiceIntent.putExtra("DOWNLOAD", "cloud")
                     context.startService(bookServiceIntent)
@@ -404,25 +428,6 @@ fun BookRecord(book: LibraryBookInfo,libMVVM: LibraryViewModel, context: Context
                 Image(
                     painter = painterResource(id = R.drawable.cloud),
                     contentDescription = "To Cloud",
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-            Button(
-                onClick = {
-//                    bookServiceIntent.putExtra("ID", book.id)
-//                    bookServiceIntent.putExtra("DOWNLOAD", "storage")
-//                    context.startService(bookServiceIntent)
-                },
-                colors = ButtonColors(
-                    containerColor = MaterialTheme.colorScheme.outline,
-                    contentColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    disabledContentColor = Color.Transparent
-                )
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.download),
-                    contentDescription = "Download",
                     modifier = Modifier.size(40.dp)
                 )
             }

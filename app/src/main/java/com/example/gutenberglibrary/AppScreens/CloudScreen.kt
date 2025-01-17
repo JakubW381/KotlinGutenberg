@@ -45,7 +45,7 @@ import java.io.File
 
 @Composable
 fun CloudScreen(libMVVM: LibraryViewModel, context : Context) {
-    val userBooks by libMVVM.userRepoBooks.collectAsState(emptyList());
+    val userBooks by libMVVM.userRepoBooks.collectAsState(emptyList())
 
         if(userBooks.isNotEmpty()){
             LazyColumn (Modifier.fillMaxSize()){

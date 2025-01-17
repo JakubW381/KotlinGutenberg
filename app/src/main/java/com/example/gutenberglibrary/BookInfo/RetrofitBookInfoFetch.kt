@@ -6,8 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitBookInfoFetch {
-
-    val client = OkHttpClient.Builder()
+    private val client = OkHttpClient.Builder()
         .connectTimeout(60, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .writeTimeout(60, TimeUnit.SECONDS)
@@ -21,5 +20,4 @@ object RetrofitBookInfoFetch {
             .build()
             .create(BookInfoApiService::class.java)
     }
-
 }

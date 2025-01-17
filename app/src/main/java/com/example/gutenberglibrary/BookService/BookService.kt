@@ -19,12 +19,11 @@ class BookService : Service() {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private var bookID: Int = 0
-    private var downloadMethod: String = "cloud"
+
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.let {
             bookID = it.getIntExtra("ID",0)
-            downloadMethod = it.getStringExtra("DOWNLOAD") ?: "cloud"
             val url = "https://www.gutenberg.org/cache/epub/${bookID}/pg${bookID}.txt"
             Log.d("URL ----->",url)
             download(url)
@@ -57,9 +56,7 @@ class BookService : Service() {
                 val broadcastIntent = Intent("com.example.gutenberglibrary.BOOK_DOWNLOADED").apply {
                     putExtra("CONTENT_URI", uri.toString())
                     putExtra("ID", bookID)
-                    putExtra("DOWNLOAD" , downloadMethod)
                 }
-                Log.d("sending intent", "sending intent")
                 sendBroadcast(broadcastIntent)
             } catch (e: Exception) {
                 e.printStackTrace()

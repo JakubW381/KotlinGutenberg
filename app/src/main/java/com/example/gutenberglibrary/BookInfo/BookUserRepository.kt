@@ -18,9 +18,9 @@ class BookUserRepository {
                     .document(user.uid)
                     .set(firestoreUser)
                     .await()
-                println("Użytkownik dodany: ${user.uid}")
+                println("User added: ${user.uid}")
             } catch (e: Exception) {
-                println("Błąd podczas dodawania użytkownika: ${e.message}")
+                println("Error adding user: ${e.message}")
             }
         }
     }
@@ -39,18 +39,17 @@ class BookUserRepository {
                     .collection("books")
                     .add(book)
                     .await()
-                println("Książka dodana dla użytkownika: ${user.uid}")
+                println("Book added to user:${user.uid} repo: ")
             } else {
-                println("Książka o ID ${book.id} już istnieje w kolekcji.")
+                println("Book: ${book.id} already exists in user: ${user.uid} repo")
             }
         }
         catch (e: Exception) {
-            println("Błąd podczas dodawania książki: ${e.message}")
+            println("Error adding book: ${e.message}")
         }
     }
     suspend fun updateScrollState(user: FirebaseUser, book: BookWithContent) {
         try {
-            // Query to find the book by its ID
             val querySnapshot = db.collection("users")
                 .document(user.uid)
                 .collection("books")
@@ -58,14 +57,9 @@ class BookUserRepository {
                 .get()
                 .await()
 
-            // Check if a book document was found
             if (!querySnapshot.isEmpty) {
                 val bookDocument = querySnapshot.documents.first()
 
-                // Log the current scrollState value to verify
-                println("Current scrollState: ${book.scrollState}")
-
-                // Perform the update
                 db.collection("users")
                     .document(user.uid)
                     .collection("books")
@@ -78,14 +72,12 @@ class BookUserRepository {
                 println("No book found with ID: ${book.id} for user: ${user.uid}")
             }
         } catch (e: Exception) {
-            // Catch and log errors during the update process
             println("Error updating scrollState: ${e.message}")
             e.printStackTrace()
         }
     }
     suspend fun deleteUserBook(user:FirebaseUser , bookID : Int){
         try {
-
             val querySnapshot = db.collection("users")
                 .document(user.uid)
                 .collection("books")
@@ -96,12 +88,12 @@ class BookUserRepository {
             if (!querySnapshot.isEmpty) {
                 val documentToDelete = querySnapshot.documents.first()
                 documentToDelete.reference.delete().await()
-                println("Książka usunięta: $bookID")
+                println("Book Deleted: $bookID")
             } else {
-                println("Nie znaleziono książki z ID: $bookID")
+                println("No book found with ID: $bookID")
             }
         }catch (e : Exception){
-            println("Błąd podczas usuwania książki: ${e.message}")
+            println("Error deleting book: ${e.message}")
         }
     }
     suspend fun getUserBooks(user:FirebaseUser): List<BookWithContent> {
@@ -115,7 +107,7 @@ class BookUserRepository {
                 document.toObject(BookWithContent::class.java)
             }
         } catch (e: Exception) {
-            println("Błąd podczas pobierania książek: ${e.message}")
+            println("Error fetching books: ${e.message}")
             emptyList()
         }
     }

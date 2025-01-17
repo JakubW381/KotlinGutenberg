@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 class LibraryViewModel : ViewModel() {
     private val fireStoreRepo = BookUserRepository()
 
-    private val _currentUser = MutableStateFlow<FirebaseUser?>(Firebase.auth.currentUser)
+    private val _currentUser = MutableStateFlow(Firebase.auth.currentUser)
     val currentUser: StateFlow<FirebaseUser?> = _currentUser
 
     fun updateCurrentUser(user: FirebaseUser?) {
@@ -47,53 +47,16 @@ class LibraryViewModel : ViewModel() {
             getUserRepoBooks(user)
         }
     }
-//    private val _storageBooks = MutableStateFlow<List<BookEntity>>(emptyList())
-//    val storageBooks: StateFlow<List<BookEntity>> = _storageBooks
-//    private var bookDB: BookDB? = null
-//
-//    fun initRoomDatabase(db : BookDB) {
-//        bookDB = db
-//    }
-//
-//    private val bookDao
-//        get() = bookDB?.BookDAO()
-//
-//    fun getStorageBooks() {
-//        viewModelScope.launch {
-//            bookDao?.let {
-//                _storageBooks.value = it.getAllBooks()
-//            }
-//        }
-//    }
-//
-//
-//    fun insertStorageBook(book: BookEntity) {
-//        viewModelScope.launch {
-//            bookDao?.let {
-//                it.insertBook(book)
-//                getStorageBooks()
-//            }
-//        }
-//    }
-//
-//    fun deleteStorageBook(book: BookEntity) {
-//        viewModelScope.launch {
-//            bookDao?.let {
-//                it.deleteBook(book)
-//                getStorageBooks()
-//            }
-//        }
-//    }
 
     private val _currentLibraryBooks = MutableStateFlow<List<LibraryBookInfo>>(emptyList())
     val currentLibraryBooks: StateFlow<List<LibraryBookInfo>> = _currentLibraryBooks
 
-    fun updateCurrentLibraryBooks(list: List<LibraryBookInfo>) {
+    private fun updateCurrentLibraryBooks(list: List<LibraryBookInfo>) {
         viewModelScope.launch {
             _currentLibraryBooks.value = list
         }
     }
-    private val _currentLibraryPage = MutableStateFlow<Int>(1)
+    private val _currentLibraryPage = MutableStateFlow(1)
     val currentLibraryPage: StateFlow<Int> = _currentLibraryPage
     fun updateCurrentPage(page: Int) {
         if (page >= 1 && page <= pageCount.value){
@@ -101,17 +64,17 @@ class LibraryViewModel : ViewModel() {
         }
     }
 
-    private val _pageCount = MutableStateFlow<Int>(1)
+    private val _pageCount = MutableStateFlow(1)
     val pageCount: StateFlow<Int> = _pageCount
-    fun updatePageCount(page: Int) {
+    private fun updatePageCount(page: Int) {
         _pageCount.value = page
     }
-    private val _searchBar = MutableStateFlow<String>("")
+    private val _searchBar = MutableStateFlow("")
     val searchBar: StateFlow<String> = _searchBar
     fun updateSearchBar(value: String) {
         _searchBar.value = value
     }
-    private val _topicBar = MutableStateFlow<String>("")
+    private val _topicBar = MutableStateFlow("")
     val topicBar: StateFlow<String> = _topicBar
     fun updateTopicBar(value: String) {
         _topicBar.value = value
@@ -133,13 +96,12 @@ class LibraryViewModel : ViewModel() {
                 var books : List<LibraryBookInfo> = emptyList()
                 response.results.forEach{ result ->
 
-                    var topics : ArrayList<String> = ArrayList<String>()
+                    var topics : ArrayList<String> = ArrayList()
                     result.bookshelves.forEach{ topic ->
-                        //topics = topics.plusElement(topic.replaceFirst("Browsing: " ,""))
                         topics = topics.plus(topic.replaceFirst("Browsing: ","")) as ArrayList<String>
                     }
                     val authorName = if (result.authors.isNotEmpty()) result.authors[0].name else "Unknown Author"
-                    var book = LibraryBookInfo(
+                    val book = LibraryBookInfo(
                         id = result.id,
                         title = result.title,
                         author = authorName,

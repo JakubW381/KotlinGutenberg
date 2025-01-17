@@ -45,7 +45,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(modifier : Modifier = Modifier, context : Context, email: String, password: String, updateVM: (FirebaseUser?) -> Unit){
+fun LoginScreen(modifier : Modifier = Modifier, context : Context, updateVM: (FirebaseUser?) -> Unit){
 
     var emailValue by remember{ mutableStateOf("") }
     var passwordValue by remember{ mutableStateOf("") }
@@ -57,20 +57,20 @@ fun LoginScreen(modifier : Modifier = Modifier, context : Context, email: String
         Column (modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally){
             Text("Welcome to",
                 style = TextStyle(
-                    color = MaterialTheme.colorScheme.surface,              // kolor tekstu
-                    fontSize = 30.sp,                 // rozmiar czcionki
-                    fontWeight = FontWeight.Normal,     // pogrubienie
-                    letterSpacing = 1.5.sp,          // odstęp między literami
-                    lineHeight = 24.sp,               // wysokość linii
+                    color = MaterialTheme.colorScheme.surface,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Normal,
+                    letterSpacing = 1.5.sp,
+                    lineHeight = 24.sp,
                 )
             )
             Text("ProjectGutenberg x Gutendex API",
                 style = TextStyle(
-                    color = MaterialTheme.colorScheme.surface,              // kolor tekstu
-                    fontSize = 25.sp,                 // rozmiar czcionki
-                    fontWeight = FontWeight.W200,     // pogrubienie
-                    letterSpacing = 1.5.sp,          // odstęp między literami
-                    lineHeight = 24.sp,               // wysokość linii
+                    color = MaterialTheme.colorScheme.surface,
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.W200,
+                    letterSpacing = 1.5.sp,
+                    lineHeight = 24.sp,
                 )
             )
             Text("by Jakub Wołowiec",

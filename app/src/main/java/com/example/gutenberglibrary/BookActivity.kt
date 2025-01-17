@@ -17,16 +17,24 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,15 +63,10 @@ class BookActivity : ComponentActivity() {
         val bookTitle = intent.getStringExtra("title")
         val bookAuthor = intent.getStringExtra("author")
         val scrollState = intent.getIntExtra("scroll",0)
-        val screen = intent.getIntExtra("screen",0)
-        val storageContent = intent.getStringExtra("content")
         val contentUri = Uri.parse(contentUriString)
-        val context = this
 
-        var content: String = ""
+        var content : String
 
-
-        if (screen == 1){
             try {
                 val inputStream: InputStream? = contentUri?.let {
                     contentResolver.openInputStream(it)
@@ -73,9 +76,6 @@ class BookActivity : ComponentActivity() {
                 e.printStackTrace()
                 content = "Error reading content"
             }
-        }else if(screen == 2){
-            content = storageContent ?: "Failed to load content"
-        }
 
         val bookWithContent = BookWithContent(
             bookID,bookTitle,bookAuthor,
@@ -83,23 +83,12 @@ class BookActivity : ComponentActivity() {
             scrollState = scrollState
         )
 
-
         enableEdgeToEdge()
-
         setContent {
             GutenbergLibraryTheme {
                 Scaffold { innerPadding ->
-                    if (screen == 1){
                         BookScreen(Modifier.padding(innerPadding), bookWithContent){bookWithContent ->
                             repoFun(bookWithContent)}
-                    }
-//                    if (screen == 2){
-//                        BookScreen(Modifier.padding(innerPadding), bookWithContent){bookWithContent ->
-//                            storageFun(bookWithContent, context)}
-//                    }
-                    else{
-                        Log.d("book activity", "wrong screen mvvm : ${screen}")
-                    }
                 }
             }
         }
@@ -107,6 +96,8 @@ class BookActivity : ComponentActivity() {
     @Composable
     fun BookScreen(modifier : Modifier = Modifier, bookWithContent: BookWithContent,scrollStateUpdate : (bookWithContent: BookWithContent) -> Unit){
         val scrollState = rememberScrollState( initial = bookWithContent.scrollState?: 0)
+        var fontSize by remember { mutableIntStateOf(16) }
+
         Box(
             modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary)
         ){
@@ -114,7 +105,6 @@ class BookActivity : ComponentActivity() {
                 Modifier
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
-
             ){
                 Row (horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.background(color = MaterialTheme.colorScheme.tertiary)
@@ -179,11 +169,24 @@ class BookActivity : ComponentActivity() {
                     .verticalScroll(scrollState)
                     .background(MaterialTheme.colorScheme.primary)
             ){
-                Text(bookWithContent.content!!, style = TextStyle(color = MaterialTheme.colorScheme.surface))
+                Text(bookWithContent.content!!, style = TextStyle(color = MaterialTheme.colorScheme.surface, fontSize = fontSize.sp))
+            }
+            Column(Modifier.align(Alignment.BottomEnd).padding(20.dp).background(MaterialTheme.colorScheme.tertiary, RoundedCornerShape(100.dp)), horizontalAlignment = Alignment.CenterHorizontally){
+                IconButton(
+                    onClick = {if (fontSize < 32) fontSize += 1 }
+                ) {
+                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Plus")
+                }
+                Text("$fontSize")
+                IconButton(
+                    onClick = {if (fontSize > 12) fontSize -= 1 }
+                ) {
+                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Minus")
+                }
             }
         }
     }
-    fun repoFun(bookWithContent: BookWithContent){
+    private fun repoFun(bookWithContent: BookWithContent){
         val coroutineScope  = CoroutineScope(Dispatchers.IO)
         val repo = BookUserRepository()
         val currentUser = Firebase.auth.currentUser
@@ -191,26 +194,6 @@ class BookActivity : ComponentActivity() {
             repo.updateScrollState(currentUser!!, bookWithContent)
         }
     }
-//    fun storageFun(bookWithContent: BookWithContent, context: Context){
-//        val coroutineScope  = CoroutineScope(Dispatchers.IO)
-//        val db = Room.databaseBuilder(
-//            context,BookDB::class.java, "book_db")
-//            .build()
-//        val bookDao = db.BookDAO()
-//        val bookEntity = BookEntity(
-//            id = bookWithContent.id,
-//            title = bookWithContent.title,
-//            author = bookWithContent.author,
-//            bookshelves = bookWithContent.bookshelves,
-//            languages = bookWithContent.languages,
-//            content = bookWithContent.content,
-//            scrollState = bookWithContent.scrollState
-//        )
-//        coroutineScope.launch {
-//            bookDao.updateBook(bookEntity)
-//        }
-//    }
-
     override fun onDestroy() {
         super.onDestroy()
         try {
