@@ -64,7 +64,16 @@ fun LoginScreen(modifier : Modifier = Modifier, context : Context, updateVM: (Fi
                     lineHeight = 24.sp,
                 )
             )
-            Text("ProjectGutenberg x Gutendex API",
+            Text("ProjectGutenberg & Gutendex API",
+                style = TextStyle(
+                    color = MaterialTheme.colorScheme.surface,
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.W200,
+                    letterSpacing = 1.5.sp,
+                    lineHeight = 24.sp,
+                )
+            )
+            Text("Gutendex API",
                 style = TextStyle(
                     color = MaterialTheme.colorScheme.surface,
                     fontSize = 25.sp,
