@@ -5,5 +5,5 @@ data class LibraryBookInfo(
     val title: String,
     val author: String,
     val bookshelves: ArrayList<String>,
-    val languages: ArrayList<String>,
+    val languages: ArrayList<String>
 )

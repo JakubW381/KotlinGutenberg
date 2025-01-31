@@ -93,6 +93,7 @@ class LibraryViewModel : ViewModel() {
                 }
 
                 updatePageCount((response.count/32)+1)
+                updateCurrentPage(page)
                 var books : List<LibraryBookInfo> = emptyList()
                 response.results.forEach{ result ->
 

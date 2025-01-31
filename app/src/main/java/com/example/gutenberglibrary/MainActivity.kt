@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -62,15 +63,16 @@ import com.example.gutenberglibrary.AppScreens.LibraryScreen
 import com.example.gutenberglibrary.Auth.AuthManager
 import com.example.gutenberglibrary.Auth.LoginScreen
 import com.example.gutenberglibrary.ui.theme.GutenbergLibraryTheme
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
-
+    private lateinit var auth: FirebaseAuth
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         val context : Context = this
-
+        auth = FirebaseAuth.getInstance()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -100,6 +102,14 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        val libraryViewModel: LibraryViewModel by viewModels()
+        if (auth.currentUser != null) {
+            libraryViewModel.getUserRepoBooks(auth.currentUser!!)
+        }
+    }
     private fun createNotificationChannel(){
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
             val name = "GutenbergLibrary"
@@ -122,8 +132,6 @@ class MainActivity : ComponentActivity() {
 
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
-
-
 
         ModalNavigationDrawer(
             gesturesEnabled = true,

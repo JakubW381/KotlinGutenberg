@@ -239,11 +239,8 @@ fun LibraryScreen(libMVVM: LibraryViewModel,context : Context) {
                     }else{
                         availableLanguages.joinToString(",")
                     }
-                    val rpage = libMVVM.currentLibraryPage.value - 1
-
-                        libMVVM.updateCurrentPage(page)
-                        libMVVM.downloadBooksFromApi(
-                        page = rpage,
+                    libMVVM.downloadBooksFromApi(
+                        page = page - 1,
                         search = resSearch,
                         language = resLanguages,
                         topic = resTopic
@@ -267,10 +264,8 @@ fun LibraryScreen(libMVVM: LibraryViewModel,context : Context) {
                     }else{
                         availableLanguages.joinToString(",")
                     }
-                    val rpage = libMVVM.currentLibraryPage.value + 1
-                    libMVVM.updateCurrentPage(page)
                     libMVVM.downloadBooksFromApi(
-                        page = rpage,
+                        page = page + 1,
                         search = resSearch,
                         language = resLanguages,
                         topic = resTopic
